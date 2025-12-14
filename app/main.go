@@ -4,8 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 )
+
+var builtin_keys = []string{"echo", "type", "exit"}
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
@@ -25,6 +28,7 @@ func main() {
 		}
 
 		args := strings.Fields(input)
+		content := strings.Join(args[1:], " ")
 
 		switch args[0] {
 		case "exit":
@@ -32,7 +36,23 @@ func main() {
 
 		case "echo":
 			if len(args) > 1 {
-				fmt.Println(strings.Join(args[1:], " "))
+				fmt.Println(content)
+			} else {
+				fmt.Println()
+			}
+		case "type":
+			if len(args) > 1 {
+				if strings.TrimSpace(args[1]) != "" {
+
+					if slices.Contains(builtin_keys, args[1]) == true {
+						fmt.Printf("%s is a shell builtin\n", args[1])
+
+					} else {
+						fmt.Printf("%s : not found\n", args[1])
+					}
+				} else {
+					fmt.Println()
+				}
 			} else {
 				fmt.Println()
 			}
