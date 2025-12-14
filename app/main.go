@@ -8,22 +8,37 @@ import (
 )
 
 func main() {
-	var stop = false
-	for stop != true {
+	reader := bufio.NewReader(os.Stdin)
 
+	for {
 		fmt.Print("$ ")
-		command, _ := bufio.NewReader(os.Stdin).ReadString('\n')
-		args := strings.Split(command, " ")
-		if command[:len(command)-1] == "exit" {
-			stop = true
-			break
-		}
-		switch args[0] {
-		case "echo":
-			fmt.Printf("%s", args[1])
-		default:
-			fmt.Println(command[:len(command)-1] + ": command not found")
+
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("error reading input:", err)
+			return
 		}
 
+		input = strings.TrimSpace(input)
+		if input == "" {
+			continue
+		}
+
+		args := strings.Fields(input)
+
+		switch args[0] {
+		case "exit":
+			return
+
+		case "echo":
+			if len(args) > 1 {
+				fmt.Println(strings.Join(args[1:], " "))
+			} else {
+				fmt.Println()
+			}
+
+		default:
+			fmt.Printf("%s: command not found\n", args[0])
+		}
 	}
 }
