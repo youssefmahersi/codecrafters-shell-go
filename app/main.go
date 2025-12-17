@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -87,7 +89,19 @@ func main() {
 			}
 
 		default:
-			fmt.Printf("%s: command not found\n", args[0])
+			target := args[1]
+			_, exists := checkCommandPermission(target)
+			if exists {
+
+				out, err := exec.Command(content).Output()
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Printf("The Command is %s\n", out)
+			} else {
+
+				fmt.Printf("%s: command not found\n", args[0])
+			}
 		}
 	}
 }
