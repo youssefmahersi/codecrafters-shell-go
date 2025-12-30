@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var builtinKeys = []string{"echo", "type", "exit"}
+var builtinKeys = []string{"echo", "type", "exit", "pwd"}
 
 func checkCommandPermission(cmd string) (*string, bool) {
 	pathEnv := os.Getenv("PATH")
@@ -82,6 +82,14 @@ func main() {
 
 		case "echo":
 			fmt.Println(content)
+
+		case "pwd":
+			dir, err := os.Getwd()
+			if err != nil {
+				fmt.Println("error getting current directory:", err)
+				continue
+			}
+			fmt.Println(dir)
 
 		case "type":
 			if len(args) < 2 || strings.TrimSpace(args[1]) == "" {
