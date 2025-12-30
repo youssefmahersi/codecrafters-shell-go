@@ -2,13 +2,14 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 )
 
 var builtinKeys = []string{"echo", "type", "exit"}
@@ -36,6 +37,20 @@ func checkCommandPermission(cmd string) (*string, bool) {
 	}
 
 	return nil, false
+}
+
+func runSubProcessCombinedOutput(name string, args ...string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, name, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
+	if err := cmd.Start(); err != nil {
+		panic(err)
+	}
+	if err := cmd.Wait(); err != nil {
+		fmt.Println("Error:", err)
+	}
 }
 
 func main() {
@@ -89,15 +104,11 @@ func main() {
 			}
 
 		default:
-			target := args[1]
+			target := args[0]
 			_, exists := checkCommandPermission(target)
 			if exists {
 
-				out, err := exec.Command(content).Output()
-				if err != nil {
-					log.Fatal(err)
-				}
-				fmt.Printf("The Command is %s\n", out)
+				runSubProcessCombinedOutput(target, args[1:]...)
 			} else {
 
 				fmt.Printf("%s: command not found\n", args[0])
